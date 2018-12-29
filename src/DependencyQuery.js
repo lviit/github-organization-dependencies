@@ -1,6 +1,9 @@
 import React from "react";
 import { Query } from "react-apollo";
 import gql from "graphql-tag";
+import styled from "styled-components";
+
+const item = styled.li``;
 
 const query = (repository, organization) => gql`
   {
@@ -80,16 +83,25 @@ const schemaQuery = gql`
   }
 `;
 
-const DependencyQuery = ({repository, organization}) => (
+const includeManifest = manifest => manifest.node.blobPath.includes('package.json');
+
+const DependencyQuery = ({ repository, organization }) => (
   <Query query={query(repository, organization)}>
     {({ loading, error, data }) => {
       if (loading) return <p>Loading...</p>;
       if (error) return <p>Error :(</p>;
 
-      return data.repository.dependencyGraphManifests.edges.map(manifest =>
-        manifest.node.dependencies.nodes.map(dependency => (
-          <div>{dependency.packageName}</div>
-        ))
+      console.log(data);
+
+      return (
+        <ul>
+          <h2>dependencies for {repository}</h2>
+          {data.repository.dependencyGraphManifests.edges.map(manifest =>
+            includeManifest(manifest) && manifest.node.dependencies.nodes.map(dependency => (
+              <li>{dependency.packageName} {dependency.requirements}</li>
+            ))
+          )}
+        </ul>
       );
     }}
   </Query>
