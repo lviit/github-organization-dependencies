@@ -1,7 +1,7 @@
 import React from "react";
 import { Query } from "react-apollo";
 import gql from "graphql-tag";
-import { USER_NAME } from './constants';
+import { USER_NAME } from "./constants";
 
 const query = gql`
   {
@@ -10,6 +10,7 @@ const query = gql`
         edges {
           node {
             name
+            login
           }
         }
       }
@@ -17,18 +18,21 @@ const query = gql`
   }
 `;
 
-const OrganizationQuery = () => (
+const OrganizationQuery = ({ handleOrgChange }) => (
   <Query query={query}>
     {({ loading, error, data }) => {
       if (loading) return <p>Loading...</p>;
       if (error) return <p>Error :(</p>;
-        console.log(data);
       return (
         <div>
           <h2>organizations</h2>
-          {data.user.organizations.edges.map(org => <p>{org.node.name}</p>)}
+          <select onChange={e => handleOrgChange(e)}>
+            {data.user.organizations.edges.map(({ node: { login, name } }) => (
+              <option value={login}>{name}</option>
+            ))}
+          </select>
         </div>
-      );   
+      );
     }}
   </Query>
 );
