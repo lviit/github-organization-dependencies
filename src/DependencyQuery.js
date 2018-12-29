@@ -1,11 +1,10 @@
 import React from "react";
 import { Query } from "react-apollo";
 import gql from "graphql-tag";
-import { ORGANIZATION, REPO } from './constants';
 
-const query = gql`
+const query = (repository, organization) => gql`
   {
-    repository(owner: "${ORGANIZATION}", name: "${REPO}") {
+    repository(owner: "${organization}", name: "${repository}") {
       dependencyGraphManifests {
         edges {
           cursor
@@ -81,8 +80,8 @@ const schemaQuery = gql`
   }
 `;
 
-const DependencyQuery = () => (
-  <Query query={query}>
+const DependencyQuery = ({repository, organization}) => (
+  <Query query={query(repository, organization)}>
     {({ loading, error, data }) => {
       if (loading) return <p>Loading...</p>;
       if (error) return <p>Error :(</p>;
