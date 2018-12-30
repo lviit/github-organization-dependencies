@@ -16,6 +16,7 @@ const GlobalStyle = createGlobalStyle`
 
   body {
     font-family: 'IBM Plex Mono', monospace;
+    background: #FAF7E9;
   }
 
   h1 {
@@ -56,10 +57,9 @@ class App extends React.Component {
           <GlobalStyle />
           <h1>Github repo dependencies</h1>
           <OrganizationQuery handleOrgChange={e => this.handleOrgChange(e)} />
-          {/*
-        <OrganizationDependencies
-          organization={this.state.activeOrganization}
-        /> */}
+          <OrganizationDependencies
+            organization={this.state.activeOrganization}
+          />
           <RepositoryQuery organization={this.state.activeOrganization} />
         </Container>
       </ApolloProvider>

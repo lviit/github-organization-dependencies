@@ -12,6 +12,7 @@ const query = organization => gql`
       repositories(first: 100) {
         edges {
           node {
+            id
             name
           }
         }
@@ -31,6 +32,19 @@ const Button = styled.button`
     cursor: pointer;
   }
 `;
+
+/* TODO: handleRepoChange?
+const Repositories = pipe(
+  path(["data", "organization", "repositories", "edges"]),
+  map(repo => (
+    <li key={repo.node.id}>
+      <Button onClick={() => this.handleRepoChange(repo.node.name)}>
+        {repo.node.name}
+      </Button>
+    </li>
+  ))
+);
+*/
 
 class RepositoryQuery extends React.Component {
   constructor() {
@@ -57,8 +71,9 @@ class RepositoryQuery extends React.Component {
               <div>
                 <h2>Repositories</h2>
                 <ul>
+                  {/* <Repositories data={data} /> */}
                   {data.organization.repositories.edges.map(repo => (
-                    <li>
+                    <li key={repo.node.id}>
                       <Button
                         onClick={() => this.handleRepoChange(repo.node.name)}
                       >
