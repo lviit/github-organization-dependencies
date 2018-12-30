@@ -1,25 +1,8 @@
 import React from "react";
-import { Query } from "react-apollo";
-import gql from "graphql-tag";
 import styled from "styled-components";
 
 import DependencyQuery from "./DependencyQuery";
 import { REPO } from "./constants";
-
-const query = organization => gql`
-  {
-    organization(login: ${organization}) {
-      repositories(first: 100) {
-        edges {
-          node {
-            id
-            name
-          }
-        }
-      }
-    }
-  }
-`;
 
 const Container = styled.div`
   display: flex;
@@ -60,37 +43,29 @@ class RepositoryQuery extends React.Component {
   }
 
   render() {
-    const { organization } = this.props;
+    const { organization, data } = this.props;
+    console.log(data);
     return (
-      <Query query={query(organization)}>
-        {({ loading, error, data }) => {
-          if (loading) return <p>Loading...</p>;
-          if (error) return <p>Error :(</p>;
-          return (
-            <Container>
-              <div>
-                <h2>Repositories</h2>
-                <ul>
-                  {/* <Repositories data={data} /> */}
-                  {data.organization.repositories.edges.map(repo => (
-                    <li key={repo.node.id}>
-                      <Button
-                        onClick={() => this.handleRepoChange(repo.node.name)}
-                      >
-                        {repo.node.name}
-                      </Button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <DependencyQuery
-                repository={this.state.activeRepository}
-                organization={organization}
-              />
-            </Container>
-          );
-        }}
-      </Query>
+      <Container>
+        <div>
+          <h2>Repositories</h2>
+          <p>{`${organization} has ${data.length} repositories with dependency data available`}</p>
+          <ul>
+            {/* <Repositories data={data} /> */}
+            {data.map(repo => (
+              <li key={repo.node.id}>
+                <Button onClick={() => this.handleRepoChange(repo.node.name)}>
+                  {repo.node.name}
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <DependencyQuery
+          repository={this.state.activeRepository}
+          organization={organization}
+        />
+      </Container>
     );
   }
 }
