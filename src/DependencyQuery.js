@@ -2,10 +2,27 @@ import React from "react";
 import { Query } from "react-apollo";
 import gql from "graphql-tag";
 import styled from "styled-components";
-import { pipe, path, chain, filter, map, prop, contains, pathSatisfies } from "ramda";
-import Spinner from './Spinner';
+import {
+  pipe,
+  path,
+  chain,
+  filter,
+  map,
+  prop,
+  contains,
+  pathSatisfies
+} from "ramda";
+import Spinner from "./Spinner";
 
-const item = styled.li``;
+const Container = styled.div`
+  background: #eae8e3;
+  padding: 30px;
+  flex: 0 0 50%;
+
+  h2 {
+    margin-top: 0;
+  }
+`;
 
 const query = (repository, organization) => gql`
   {
@@ -88,7 +105,7 @@ const schemaQuery = gql`
 const Dependencies = pipe(
   prop("data"),
   path(["repository", "dependencyGraphManifests", "edges"]),
-  filter(pathSatisfies(contains('package.json'), ['node', 'blobPath'])),
+  filter(pathSatisfies(contains("package.json"), ["node", "blobPath"])),
   chain(path(["node", "dependencies", "nodes"])),
   map(dep => (
     <li>
@@ -98,19 +115,21 @@ const Dependencies = pipe(
 );
 
 const DependencyQuery = ({ repository, organization }) => (
-  <Query query={query(repository, organization)}>
-    {({ loading, error, data }) => {
-      if (loading) return <Spinner />;
-      if (error) return <p>Error :(</p>;
+  <Container>
+    <Query query={query(repository, organization)}>
+      {({ loading, error, data }) => {
+        if (loading) return <Spinner />;
+        if (error) return <p>Error :(</p>;
 
-      return (
-        <ul>
-          <h2>dependencies for {repository}</h2>
-          <Dependencies data={data} />
-        </ul>
-      );
-    }}
-  </Query>
+        return (
+          <ul>
+            <h2>dependencies for {repository}</h2>
+            <Dependencies data={data} />
+          </ul>
+        );
+      }}
+    </Query>
+  </Container>
 );
 
 export default DependencyQuery;

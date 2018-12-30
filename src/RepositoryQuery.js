@@ -6,18 +6,29 @@ import { REPO } from "./constants";
 
 const Container = styled.div`
   display: flex;
+  margin-top: 5rem;
 `;
 
 const Left = styled.div`
   flex: 0 0 50%;
-
 `;
 
 const Button = styled.button`
+  transition: all 0.3s ease-in-out;
   border: none;
-  margin: 3px 0;
+  padding: ${props => (props.active ? "20px 10px": "10px")};
+  font-weight: ${props => (props.active ? "600": "400")}; 
+  width: 100%;
+  text-align: left;
+  font-size: 1.2rem;
+  background: ${props => (props.active ? "#eae8e3" : "none")};
+
   &:hover {
     cursor: pointer;
+  }
+
+  &:focus {
+    outline: none;
   }
 `;
 
@@ -49,7 +60,8 @@ class RepositoryQuery extends React.Component {
 
   render() {
     const { organization, data } = this.props;
-    //console.log(data);
+    const { activeRepository } = this.state;
+    console.log(data);
     return (
       <Container>
         <Left>
@@ -59,17 +71,20 @@ class RepositoryQuery extends React.Component {
           } repositories with dependency data available. Select a repository to view it's dependencies.`}</p>
           <ul>
             {/* <Repositories data={data} /> */}
-            {data.map(repo => (
-              <li key={repo.node.id}>
-                <Button onClick={() => this.handleRepoChange(repo.node.name)}>
-                  {repo.node.name}
+            {data.map(({ node: { name, id } }) => (
+              <li key={id}>
+                <Button
+                  active={activeRepository === name}
+                  onClick={() => this.handleRepoChange(name)}
+                >
+                  {name}
                 </Button>
               </li>
             ))}
           </ul>
         </Left>
         <DependencyQuery
-          repository={this.state.activeRepository}
+          repository={activeRepository}
           organization={organization}
         />
       </Container>
