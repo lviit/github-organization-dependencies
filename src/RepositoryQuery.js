@@ -8,6 +8,11 @@ const Container = styled.div`
   display: flex;
 `;
 
+const Left = styled.div`
+  flex: 0 0 50%;
+
+`;
+
 const Button = styled.button`
   border: none;
   margin: 3px 0;
@@ -47,9 +52,11 @@ class RepositoryQuery extends React.Component {
     //console.log(data);
     return (
       <Container>
-        <div>
+        <Left>
           <h2>Repositories</h2>
-          <p>{`${organization} has ${data.length} repositories with dependency data available`}</p>
+          <p>{`${organization} has ${
+            data.length
+          } repositories with dependency data available. Select a repository to view it's dependencies.`}</p>
           <ul>
             {/* <Repositories data={data} /> */}
             {data.map(repo => (
@@ -60,7 +67,7 @@ class RepositoryQuery extends React.Component {
               </li>
             ))}
           </ul>
-        </div>
+        </Left>
         <DependencyQuery
           repository={this.state.activeRepository}
           organization={organization}

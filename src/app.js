@@ -7,15 +7,17 @@ import gql from "graphql-tag";
 import { createGlobalStyle } from "styled-components";
 import { Normalize } from "styled-normalize";
 import styled from "styled-components";
-import { pipe, path, map, uniq, prop, chain, reject, pathSatisfies, isEmpty } from "ramda";
+//import { adopt } from "react-adopt";
+import { pipe, path, reject, pathSatisfies, isEmpty } from "ramda";
 
 import OrganizationQuery from "./OrganizationQuery";
 import RepositoryQuery from "./RepositoryQuery";
 import OrganizationDependencies from "./OrganizationDependencies";
 import { API_URI, API_REQ_HEADERS, ORGANIZATION } from "./constants";
+import Spinner from "./Spinner";
 
 const GlobalStyle = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css?family=IBM+Plex+Mono');
+  @import url('https://fonts.googleapis.com/css?family=IBM+Plex+Mono:300,600');
 
   body {
     font-family: 'IBM Plex Mono', monospace;
@@ -23,8 +25,17 @@ const GlobalStyle = createGlobalStyle`
   }
 
   h1 {
-    text-align: center;
-    font-size: 3rem;
+    font-size: 3.5rem;
+  }
+
+  h1, h2, h3 {
+    font-weight: 600;
+  }
+
+  p,
+  li {
+    font-weight: 300;
+    line-height: 1.4;
   }
 `;
 
@@ -38,10 +49,15 @@ const client = new ApolloClient({
   headers: API_REQ_HEADERS
 });
 
-const query = organization => gql`
+const query = (organization, endCursor = "") => gql`
   {
     organization(login: ${organization}) {
-      repositories(first: 50) {
+      repositories(first: 50, after: "${endCursor}") {
+        totalCount
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
         edges {
           node {
             id
@@ -63,7 +79,12 @@ const query = organization => gql`
     }
   }
 `;
-
+/*
+const Composed = adopt({
+  first: ({ render }) => <Query query={FIRST_QUERY}>{render}</Query>,
+  second: ({ render }) => <Query query={SECOND_QUERY}>{render}</Query>
+});
+*/
 class App extends React.Component {
   constructor() {
     super();
@@ -84,26 +105,53 @@ class App extends React.Component {
         <Container>
           <Normalize />
           <GlobalStyle />
-          <h1>Github repo dependencies</h1>
-          <OrganizationQuery handleOrgChange={e => this.handleOrgChange(e)} />
+          <h1>Github organization dependencies</h1>
+          <p>
+            Find out what packages your organization is using. Currently only
+            looks for dependencies in package.json for repositories where the
+            depency graph is enabled. Find out how to enable the graph for your
+            repository{" "}
+            <a
+              target="_blank"
+              href="https://help.github.com/articles/listing-the-packages-that-a-repository-depends-on/#enabling-the-dependency-graph-for-a-private-repository"
+            >
+              here.
+            </a>
+          </p>
+
+          <OrganizationQuery
+            handleOrgChange={e => this.handleOrgChange(e)}
+            organization={this.state.activeOrganization}
+          />
           <Query query={query(this.state.activeOrganization)}>
             {({ loading, error, data }) => {
-              if (loading) return <p>Loading...</p>;
+              if (loading) return <Spinner />;
               if (error) return <p>Error :(</p>;
 
               const filterReposWithoutDependencies = pipe(
                 path(["organization", "repositories", "edges"]),
-                reject(pathSatisfies(isEmpty, ['node', 'dependencyGraphManifests', 'edges'])),
+                reject(
+                  pathSatisfies(isEmpty, [
+                    "node",
+                    "dependencyGraphManifests",
+                    "edges"
+                  ])
+                )
               );
-              const reposWithDependencies = filterReposWithoutDependencies(data);
-              
+              const reposWithDependencies = filterReposWithoutDependencies(
+                data
+              );
+
+              //console.log(data);
               return (
                 <React.Fragment>
                   <OrganizationDependencies
-                    organization={this.state.activeOrganization} data={reposWithDependencies}
+                    organization={this.state.activeOrganization}
+                    data={reposWithDependencies}
                   />
                   <RepositoryQuery
-                    organization={this.state.activeOrganization} data={reposWithDependencies}
+                    organization={this.state.activeOrganization}
+                    data={reposWithDependencies}
                   />
                 </React.Fragment>
               );

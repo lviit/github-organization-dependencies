@@ -3,6 +3,7 @@ import { Query } from "react-apollo";
 import gql from "graphql-tag";
 import styled from "styled-components";
 import { pipe, path, chain, filter, map, prop, contains, pathSatisfies } from "ramda";
+import Spinner from './Spinner';
 
 const item = styled.li``;
 
@@ -99,7 +100,7 @@ const Dependencies = pipe(
 const DependencyQuery = ({ repository, organization }) => (
   <Query query={query(repository, organization)}>
     {({ loading, error, data }) => {
-      if (loading) return <p>Loading...</p>;
+      if (loading) return <Spinner />;
       if (error) return <p>Error :(</p>;
 
       return (
