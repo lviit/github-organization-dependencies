@@ -35,7 +35,7 @@ const OrganizationQuery = ({ handleOrgChange }) => (
 
       return (
         <div>
-          <h2>organizations</h2>
+          <h2>Select organization</h2>
           <select onChange={e => handleOrgChange(e)}>
             <Organizations data={data} />
           </select>

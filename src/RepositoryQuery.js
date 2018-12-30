@@ -44,7 +44,7 @@ class RepositoryQuery extends React.Component {
 
   render() {
     const { organization, data } = this.props;
-    console.log(data);
+    //console.log(data);
     return (
       <Container>
         <div>
