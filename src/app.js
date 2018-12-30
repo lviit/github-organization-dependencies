@@ -17,15 +17,19 @@ import { API_URI, API_REQ_HEADERS, ORGANIZATION } from "./constants";
 import Spinner from "./Spinner";
 
 const GlobalStyle = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css?family=IBM+Plex+Mono:300,600');
+  @import url('https://fonts.googleapis.com/css?family=IBM+Plex+Mono:300, 500i, 600');
 
   body {
     font-family: 'IBM Plex Mono', monospace;
-    background: #FAF7E9;
+    background: #f2f0ea;
   }
 
   h1 {
     font-size: 3.5rem;
+  }
+
+  h2 {
+    font-size: 2.5rem;
   }
 
   h1, h2, h3 {
@@ -36,6 +40,12 @@ const GlobalStyle = createGlobalStyle`
   li {
     font-weight: 300;
     line-height: 1.4;
+    list-style-type: none;
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
   }
 `;
 

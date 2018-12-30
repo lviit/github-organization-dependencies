@@ -16,8 +16,11 @@ import Spinner from "./Spinner";
 
 const Container = styled.div`
   background: #eae8e3;
-  padding: 30px;
   flex: 0 0 50%;
+
+  ul {
+    padding: 50px;
+  }
 
   h2 {
     margin-top: 0;
@@ -123,7 +126,7 @@ const DependencyQuery = ({ repository, organization }) => (
 
         return (
           <ul>
-            <h2>dependencies for {repository}</h2>
+            <h2>{repository}</h2>
             <Dependencies data={data} />
           </ul>
         );

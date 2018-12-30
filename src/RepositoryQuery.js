@@ -6,18 +6,27 @@ import { REPO } from "./constants";
 
 const Container = styled.div`
   display: flex;
+  flex-wrap: wrap;
   margin-top: 5rem;
+`;
+
+const Header = styled.div`
+  flex: 0 0 100%;
 `;
 
 const Left = styled.div`
   flex: 0 0 50%;
+
+  ul {
+    padding: 50px 0 50px;
+  }
 `;
 
 const Button = styled.button`
   transition: all 0.3s ease-in-out;
   border: none;
-  padding: ${props => (props.active ? "20px 10px": "10px")};
-  font-weight: ${props => (props.active ? "600": "400")}; 
+  padding: ${props => (props.active ? "20px" : "10px 20px")};
+  font-weight: ${props => (props.active ? "600" : "400")};
   width: 100%;
   text-align: left;
   font-size: 1.2rem;
@@ -61,14 +70,16 @@ class RepositoryQuery extends React.Component {
   render() {
     const { organization, data } = this.props;
     const { activeRepository } = this.state;
-    console.log(data);
+
     return (
       <Container>
-        <Left>
+        <Header>
           <h2>Repositories</h2>
           <p>{`${organization} has ${
             data.length
           } repositories with dependency data available. Select a repository to view it's dependencies.`}</p>
+        </Header>
+        <Left>
           <ul>
             {/* <Repositories data={data} /> */}
             {data.map(({ node: { name, id } }) => (
