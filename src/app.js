@@ -7,7 +7,6 @@ import gql from "graphql-tag";
 import { createGlobalStyle } from "styled-components";
 import { Normalize } from "styled-normalize";
 import styled from "styled-components";
-//import { adopt } from "react-adopt";
 import { pipe, path, reject, pathSatisfies, isEmpty } from "ramda";
 
 import OrganizationQuery from "./OrganizationQuery";
@@ -59,10 +58,10 @@ const client = new ApolloClient({
   headers: API_REQ_HEADERS
 });
 
-const query = (organization, endCursor = "") => gql`
-  {
+const query = organization => gql`
+  query getDependencies($endCursor: String!) {
     organization(login: ${organization}) {
-      repositories(first: 50, after: "${endCursor}") {
+      repositories(first: 20, after: $endCursor) {
         totalCount
         pageInfo {
           hasNextPage
@@ -89,12 +88,7 @@ const query = (organization, endCursor = "") => gql`
     }
   }
 `;
-/*
-const Composed = adopt({
-  first: ({ render }) => <Query query={FIRST_QUERY}>{render}</Query>,
-  second: ({ render }) => <Query query={SECOND_QUERY}>{render}</Query>
-});
-*/
+
 class App extends React.Component {
   constructor() {
     super();
@@ -133,10 +127,41 @@ class App extends React.Component {
             handleOrgChange={e => this.handleOrgChange(e)}
             organization={this.state.activeOrganization}
           />
-          <Query query={query(this.state.activeOrganization)}>
-            {({ loading, error, data }) => {
+          <Query
+            query={query(this.state.activeOrganization)}
+            variables={{
+              endCursor: ""
+            }}
+          >
+            {({ loading, error, data, fetchMore }) => {
               if (loading) return <Spinner />;
               if (error) return <p>Error :(</p>;
+
+              const {
+                endCursor,
+                hasNextPage
+              } = data.organization.repositories.pageInfo;
+
+              hasNextPage &&
+                fetchMore({
+                  variables: {
+                    endCursor
+                  },
+                  updateQuery: (prev, { fetchMoreResult }) => {
+                    return fetchMoreResult ? {
+                      organization: {
+                        ...prev.organization,
+                        repositories: {
+                          ...prev.organization.repositories,
+                          edges: [
+                            ...prev.organization.repositories.edges,
+                            ...fetchMoreResult.organization.repositories.edges
+                          ]
+                        }
+                      }
+                    } : prev;
+                  }
+                });
 
               const filterReposWithoutDependencies = pipe(
                 path(["organization", "repositories", "edges"]),
