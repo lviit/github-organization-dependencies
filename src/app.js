@@ -61,7 +61,7 @@ const client = new ApolloClient({
 const query = organization => gql`
   query getDependencies($endCursor: String!) {
     organization(login: ${organization}) {
-      repositories(first: 20, after: $endCursor) {
+      repositories(first: 50, after: $endCursor) {
         totalCount
         pageInfo {
           hasNextPage
@@ -74,6 +74,7 @@ const query = organization => gql`
             dependencyGraphManifests {
               edges {
                 node {
+                  blobPath
                   dependencies {
                     nodes {
                       packageName
@@ -129,6 +130,7 @@ class App extends React.Component {
           />
           <Query
             query={query(this.state.activeOrganization)}
+            //notifyOnNetworkStatusChange
             variables={{
               endCursor: ""
             }}
@@ -150,9 +152,9 @@ class App extends React.Component {
                   updateQuery: (prev, { fetchMoreResult }) => {
                     return fetchMoreResult ? {
                       organization: {
-                        ...prev.organization,
+                        ...fetchMoreResult.organization,
                         repositories: {
-                          ...prev.organization.repositories,
+                          ...fetchMoreResult.organization.repositories,
                           edges: [
                             ...prev.organization.repositories.edges,
                             ...fetchMoreResult.organization.repositories.edges

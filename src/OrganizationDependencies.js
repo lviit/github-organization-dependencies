@@ -16,11 +16,15 @@ import {
   reverse,
   slice,
   keys,
-  head
+  head,
+  filter,
+  pathSatisfies,
+  contains,
 } from "ramda";
 
 const packages = pipe(
   chain(path(["node", "dependencyGraphManifests", "edges"])),
+  filter(pathSatisfies(contains("package.json"), ["node", "blobPath"])),
   chain(path(["node", "dependencies", "nodes"])),
   groupBy(prop("packageName")),
   toPairs,
@@ -32,7 +36,7 @@ const packages = pipe(
   ),
   reverse,
   map(apply(objOf)),
-  slice(0, 20)
+  slice(0, 30)
 );
 
 const titles = pipe(
@@ -84,10 +88,12 @@ const OrganizationDependencies = ({ organization, data }) => {
             }
           ]
         }}
+        height={250}
         options={{
           scales: {
             yAxes: [
               {
+                barThickness : 15,
                 ticks: {
                   fontFamily: "'IBM Plex Mono', monospace",
                   fill: "#000"
