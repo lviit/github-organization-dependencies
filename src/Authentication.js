@@ -22,11 +22,7 @@ const Container = styled.div`
 
 const Authentication = () => (
   <Container>
-    <a
-      href={'/authenticate/github'}
-    >
-      Authenticate with github
-    </a>
+    <a href={"/authenticate/github"}>Authenticate with github</a>
   </Container>
 );
 

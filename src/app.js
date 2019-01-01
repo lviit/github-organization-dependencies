@@ -16,6 +16,10 @@ import {
 const GlobalStyle = createGlobalStyle`
   @import url('https://fonts.googleapis.com/css?family=IBM+Plex+Mono:300, 500i, 600');
 
+  * {
+    box-sizing: border-box;
+  }
+
   body {
     font-family: 'IBM Plex Mono', monospace;
     background: #f2f0ea;

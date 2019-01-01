@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 
 import DependencyQuery from "./DependencyQuery";
-import { REPO } from "./constants";
 
 const Container = styled.div`
   display: flex;
@@ -58,7 +57,7 @@ class RepositoryQuery extends React.Component {
   constructor() {
     super();
     this.state = {
-      activeRepository: REPO
+      activeRepository: '',
     };
   }
   handleRepoChange(name) {

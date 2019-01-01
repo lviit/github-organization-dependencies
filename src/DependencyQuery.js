@@ -17,13 +17,20 @@ import Spinner from "./Spinner";
 const Container = styled.div`
   background: #eae8e3;
   flex: 0 0 50%;
+  padding: 50px;
 
-  ul {
-    padding: 50px;
-  }
-
-  h2 {
+  h3 {
     margin-top: 0;
+    font-size: 2rem;
+  }
+`;
+
+const TitleWithArrow = styled.h3`
+  display: flex;
+  align-items: center;
+
+  span {
+    margin-right: 10px;
   }
 `;
 
@@ -106,8 +113,7 @@ const schemaQuery = gql`
 `;
 
 const Dependencies = pipe(
-  prop("data"),
-  path(["repository", "dependencyGraphManifests", "edges"]),
+  path(["data", "repository", "dependencyGraphManifests", "edges"]),
   filter(pathSatisfies(contains("package.json"), ["node", "blobPath"])),
   chain(path(["node", "dependencies", "nodes"])),
   map(dep => (
@@ -119,19 +125,26 @@ const Dependencies = pipe(
 
 const DependencyQuery = ({ repository, organization }) => (
   <Container>
-    <Query query={query(repository, organization)}>
-      {({ loading, error, data }) => {
-        if (loading) return <Spinner />;
-        if (error) return <p>Error :(</p>;
+    {repository ? (
+      <Query query={query(repository, organization)}>
+        {({ loading, error, data }) => {
+          if (loading) return <Spinner />;
+          if (error) return <p>Error :(</p>;
 
-        return (
-          <ul>
-            <h2>{repository}</h2>
-            <Dependencies data={data} />
-          </ul>
-        );
-      }}
-    </Query>
+          return (
+            <ul>
+              <h3>{repository}</h3>
+              <Dependencies data={data} />
+            </ul>
+          );
+        }}
+      </Query>
+    ) : (
+      <TitleWithArrow>
+        <span>←</span>
+        Select a repository from the list
+      </TitleWithArrow>
+    )}
   </Container>
 );
 
