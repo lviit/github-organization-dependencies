@@ -1,5 +1,4 @@
 import React from "react";
-import { GITHUB_CLIENT_ID } from "./constants.js";
 import styled from "styled-components";
 
 const Container = styled.div`

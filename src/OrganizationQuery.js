@@ -8,6 +8,7 @@ import { pipe, path, map, prop, propEq, find, prepend } from "ramda";
 const query = gql`
   {
     viewer {
+      login
       organizations(first: 100) {
         edges {
           node {
@@ -56,6 +57,15 @@ const OrganizationSwitcher = styled.div`
   }
 `;
 
+const Hello = styled.p`
+  text-align: right;
+  margin-top: 20px;
+
+  b {
+    font-weight: 600;
+  }
+`;
+
 const Organizations = pipe(
   path(["data", "viewer", "organizations", "edges"]),
   map(({ node: { login, name } }) => <option value={login}>{name}</option>),
@@ -84,27 +94,32 @@ const OrganizationQuery = ({ handleOrgChange, organization }) => (
         : null;
 
       return (
-        <Container>
-          <OrganizationInfo>
-            {organizationInfo ? (
-              <React.Fragment>
-                <img src={organizationInfo.avatarUrl} />
-                <div>
-                  <h2>{organizationInfo.name}</h2>
-                  <p>{organizationInfo.description}</p>
-                </div>
-              </React.Fragment>
-            ) : (
-              <h2>Select organization →</h2>
-            )}
-          </OrganizationInfo>
-          <OrganizationSwitcher>
-            <label>Select organization</label>
-            <select defaultValue={"none"} onChange={e => handleOrgChange(e)}>
-              <Organizations data={data} />
-            </select>
-          </OrganizationSwitcher>
-        </Container>
+        <React.Fragment>
+          <Hello>
+            Signed in as <b>{data.viewer.login}.</b>
+          </Hello>
+          <Container>
+            <OrganizationInfo>
+              {organizationInfo ? (
+                <React.Fragment>
+                  <img src={organizationInfo.avatarUrl} />
+                  <div>
+                    <h2>{organizationInfo.name}</h2>
+                    <p>{organizationInfo.description}</p>
+                  </div>
+                </React.Fragment>
+              ) : (
+                <h2>Select organization →</h2>
+              )}
+            </OrganizationInfo>
+            <OrganizationSwitcher>
+              <label>Select organization</label>
+              <select defaultValue={"none"} onChange={e => handleOrgChange(e)}>
+                <Organizations data={data} />
+              </select>
+            </OrganizationSwitcher>
+          </Container>
+        </React.Fragment>
       );
     }}
   </Query>

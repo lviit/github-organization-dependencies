@@ -82,7 +82,17 @@ const OrganizationDependencies = ({ organization, data }) => {
                 "#C1392B",
                 "#95A5A5",
                 "#8F44AD",
-                "#E84C3D"
+                "#E84C3D",
+                "#1BBC9B",
+                "#F1C40F",
+                "#34495E",
+                "#7E8C8D",
+                "#2ECC70",
+                "#1BBC9B",
+                "#D25400",
+                "#8F44AD",
+                "#BEC3C7",
+                "#3598DB",
               ],
               data: values
             }
@@ -96,7 +106,8 @@ const OrganizationDependencies = ({ organization, data }) => {
                 barThickness : 15,
                 ticks: {
                   fontFamily: "'IBM Plex Mono', monospace",
-                  fill: "#000"
+                  fontColor: "#000",
+                  fontSize: 14,
                 }
               }
             ],

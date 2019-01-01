@@ -108,11 +108,11 @@ class App extends React.Component {
       <Container>
         <Normalize />
         <GlobalStyle />
-        <h1>Github organization dependencies</h1>
+        <h1>Javascript dependencies for your github organization</h1>
         <p>
-          Find out what packages your organization is using. Currently only
-          looks for dependencies in package.json for repositories where the
-          depency graph is enabled. Find out how to enable the graph for your
+          Find out what npm packages your organization is using. Looks
+          for dependencies in package.json files for repositories where the
+          dependency graph is enabled. Find out how to enable the graph for your
           repository{" "}
           <a target="_blank" href={GITHUB_README_URL}>
             here.

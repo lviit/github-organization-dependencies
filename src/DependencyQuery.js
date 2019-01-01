@@ -43,11 +43,6 @@ const query = (repository, organization) => gql`
           node {
             blobPath
             dependencies {
-              edges {
-                node {
-                  packageName
-                }
-              }
               nodes {
                 packageName
                 repository {
@@ -57,56 +52,8 @@ const query = (repository, organization) => gql`
               }
               totalCount
             }
-            dependenciesCount
-            exceedsMaxSize
-            filename
-            id
-            parseable
-            repository {
-              name
-            }
           }
         }
-        nodes {
-          blobPath
-          dependencies {
-            edges {
-              node {
-                packageName
-              }
-            }
-            nodes {
-              packageName
-              repository {
-                name
-              }
-              requirements
-            }
-            totalCount
-          }
-          dependenciesCount
-          exceedsMaxSize
-          filename
-          id
-          parseable
-          repository {
-            name
-          }
-        }
-        totalCount
-      }
-    }
-  }
-`;
-
-const schemaQuery = gql`
-  {
-    __type(name: "DependencyGraphDependencyEdge") {
-      name
-      kind
-      description
-      fields {
-        name
       }
     }
   }
