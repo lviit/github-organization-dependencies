@@ -15,6 +15,7 @@ import {
   gt,
   length,
   __,
+  uniq
 } from "ramda";
 
 const Container = styled.div`
@@ -31,11 +32,28 @@ const Header = styled.div`
     font-size: 1.2rem;
     border: 3px solid #000;
     background: transparent;
+    padding-right: 45px;
+    min-width: 340px;
 
     &::placeholder {
       font-style: italic;
-      font-weight: 300;
     }
+  }
+
+  svg {
+    margin-left: -30px;
+    transform: scale(1.5);
+  }
+`;
+
+const StyledPackagesFound = styled.p`
+  background: #eae8e3;
+  padding: 20px;
+  margin: 2rem 0;
+
+  span {
+    font-style: italic;
+    font-weight: 600;
   }
 `;
 
@@ -87,12 +105,22 @@ const filterByKeywords = (keywords, data) =>
         path(["dependencyGraphManifests", "edges"]),
         filter(pathSatisfies(contains("package.json"), ["node", "blobPath"])),
         chain(path(["node", "dependencies", "nodes"])),
-        filter(propSatisfies(contains(keywords), 'packageName')),
+        filter(propSatisfies(contains(keywords), "packageName")),
         length,
-        gt(__, 0),
+        gt(__, 0)
       )
     )
   )(data);
+
+const packageMatches = (keywords, filteredData) =>
+  pipe(
+    chain(path(["dependencyGraphManifests", "edges"])),
+    filter(pathSatisfies(contains("package.json"), ["node", "blobPath"])),
+    chain(path(["node", "dependencies", "nodes"])),
+    filter(propSatisfies(contains(keywords), "packageName")),
+    map(prop("packageName")),
+    uniq
+  )(filteredData);
 
 class RepositoryQuery extends React.Component {
   constructor() {
@@ -115,9 +143,14 @@ class RepositoryQuery extends React.Component {
   render() {
     const { organization, data } = this.props;
     const { activeRepository, keywords } = this.state;
+
     const filteredData = keywords
       ? filterByKeywords(keywords, data)
       : map(prop("node"), data);
+
+    const packagesFound = keywords
+      ? packageMatches(keywords, filteredData)
+      : null;
 
     return (
       <Container>
@@ -131,6 +164,19 @@ class RepositoryQuery extends React.Component {
             placeholder="search by package name"
             onChange={e => this.search(e)}
           />
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="13">
+            <g strokeWidth="2" stroke="#000" fill="none">
+              <path d="M11.29 11.71l-4-4" />
+              <circle cx="5" cy="5" r="4" />
+            </g>
+          </svg>
+          {packagesFound && (
+            <StyledPackagesFound>
+              {"Found packages"} <span>{packagesFound.join(", ")}</span> {"in "}
+              <span>{filteredData.length}</span>
+              {" repositories."}
+            </StyledPackagesFound>
+          )}
         </Header>
         <Left>
           <ul>
