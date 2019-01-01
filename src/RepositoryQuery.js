@@ -15,7 +15,9 @@ import {
   gt,
   length,
   __,
-  uniq
+  uniq,
+  propEq,
+  find
 } from "ramda";
 
 const Container = styled.div`
@@ -152,6 +154,8 @@ class RepositoryQuery extends React.Component {
       ? packageMatches(keywords, filteredData)
       : null;
 
+    const activeRepositoryData = find(propEq("name", activeRepository));
+
     return (
       <Container>
         <Header>
@@ -193,10 +197,9 @@ class RepositoryQuery extends React.Component {
             ))}
           </ul>
         </Left>
-        <DependencyQuery
-          repository={activeRepository}
-          organization={organization}
-        />
+        {activeRepository && (
+          <DependencyQuery {...activeRepositoryData(filteredData)} />
+        )}
       </Container>
     );
   }

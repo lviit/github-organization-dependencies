@@ -13,7 +13,6 @@ const query = organization => gql`
   query getDependencies($endCursor: String!) {
     organization(login: ${organization}) {
       repositories(first: 50, after: $endCursor) {
-        totalCount
         pageInfo {
           hasNextPage
           endCursor
@@ -29,6 +28,7 @@ const query = organization => gql`
                   dependencies {
                     nodes {
                       packageName
+                      requirements
                     }
                   }
                 }
