@@ -1,19 +1,17 @@
 import React from "react";
 import { render } from "react-dom";
-import { ApolloProvider } from "react-apollo";
 import ApolloClient from "apollo-boost";
-import { Query } from "react-apollo";
-import gql from "graphql-tag";
 import { createGlobalStyle } from "styled-components";
 import { Normalize } from "styled-normalize";
 import styled from "styled-components";
-import { pipe, path, reject, pathSatisfies, isEmpty } from "ramda";
 
-import OrganizationQuery from "./OrganizationQuery";
-import RepositoryQuery from "./RepositoryQuery";
-import OrganizationDependencies from "./OrganizationDependencies";
-import { API_URI, API_REQ_HEADERS, ORGANIZATION } from "./constants";
-import Spinner from "./Spinner";
+import Authentication from "./Authentication";
+import Page from "./Page";
+import {
+  API_URI,
+  API_PREVIEW_ACCEPT_HEADER,
+  GITHUB_README_URL
+} from "./constants";
 
 const GlobalStyle = createGlobalStyle`
   @import url('https://fonts.googleapis.com/css?family=IBM+Plex+Mono:300, 500i, 600');
@@ -53,149 +51,75 @@ const Container = styled.div`
   max-width: 1100px;
 `;
 
-const client = new ApolloClient({
-  uri: API_URI,
-  headers: API_REQ_HEADERS
-});
-
-const query = organization => gql`
-  query getDependencies($endCursor: String!) {
-    organization(login: ${organization}) {
-      repositories(first: 50, after: $endCursor) {
-        totalCount
-        pageInfo {
-          hasNextPage
-          endCursor
-        }
-        edges {
-          node {
-            id
-            name
-            dependencyGraphManifests {
-              edges {
-                node {
-                  blobPath
-                  dependencies {
-                    nodes {
-                      packageName
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+const createApolloClient = token =>
+  new ApolloClient({
+    uri: API_URI,
+    headers: {
+      Authorization: `bearer ${token}`,
+      Accept: API_PREVIEW_ACCEPT_HEADER
     }
-  }
-`;
+  });
 
 class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      activeOrganization: ORGANIZATION
+      authenticated: false
     };
   }
 
-  handleOrgChange(e) {
-    this.setState({
-      activeOrganization: e.target.value
-    });
+  componentDidMount() {
+    const token = localStorage.getItem("access_token");
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+
+    if (code) {
+      fetch("/authenticate/token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ code })
+      }).then(response => {
+        response.json().then(data => {
+          window.history.replaceState({}, document.title, "/");
+          const token = data.access_token;
+          window.localStorage.setItem("access_token", token);
+          this.client = createApolloClient(token);
+          this.setState({
+            authenticated: true
+          });
+        });
+      });
+    } else if (token) {
+      this.client = createApolloClient(token);
+      this.setState({
+        authenticated: true
+      });
+    }
   }
 
   render() {
     return (
-      <ApolloProvider client={client}>
-        <Container>
-          <Normalize />
-          <GlobalStyle />
-          <h1>Github organization dependencies</h1>
-          <p>
-            Find out what packages your organization is using. Currently only
-            looks for dependencies in package.json for repositories where the
-            depency graph is enabled. Find out how to enable the graph for your
-            repository{" "}
-            <a
-              target="_blank"
-              href="https://help.github.com/articles/listing-the-packages-that-a-repository-depends-on/#enabling-the-dependency-graph-for-a-private-repository"
-            >
-              here.
-            </a>
-          </p>
-
-          <OrganizationQuery
-            handleOrgChange={e => this.handleOrgChange(e)}
-            organization={this.state.activeOrganization}
-          />
-          <Query
-            query={query(this.state.activeOrganization)}
-            //notifyOnNetworkStatusChange
-            variables={{
-              endCursor: ""
-            }}
-          >
-            {({ loading, error, data, fetchMore }) => {
-              if (loading) return <Spinner />;
-              if (error) return <p>Error :(</p>;
-
-              const {
-                endCursor,
-                hasNextPage
-              } = data.organization.repositories.pageInfo;
-
-              hasNextPage &&
-                fetchMore({
-                  variables: {
-                    endCursor
-                  },
-                  updateQuery: (prev, { fetchMoreResult }) => {
-                    return fetchMoreResult ? {
-                      organization: {
-                        ...fetchMoreResult.organization,
-                        repositories: {
-                          ...fetchMoreResult.organization.repositories,
-                          edges: [
-                            ...prev.organization.repositories.edges,
-                            ...fetchMoreResult.organization.repositories.edges
-                          ]
-                        }
-                      }
-                    } : prev;
-                  }
-                });
-
-              const filterReposWithoutDependencies = pipe(
-                path(["organization", "repositories", "edges"]),
-                reject(
-                  pathSatisfies(isEmpty, [
-                    "node",
-                    "dependencyGraphManifests",
-                    "edges"
-                  ])
-                )
-              );
-              const reposWithDependencies = filterReposWithoutDependencies(
-                data
-              );
-
-              //console.log(data);
-              return (
-                <React.Fragment>
-                  <OrganizationDependencies
-                    organization={this.state.activeOrganization}
-                    data={reposWithDependencies}
-                  />
-                  <RepositoryQuery
-                    organization={this.state.activeOrganization}
-                    data={reposWithDependencies}
-                  />
-                </React.Fragment>
-              );
-            }}
-          </Query>
-        </Container>
-      </ApolloProvider>
+      <Container>
+        <Normalize />
+        <GlobalStyle />
+        <h1>Github organization dependencies</h1>
+        <p>
+          Find out what packages your organization is using. Currently only
+          looks for dependencies in package.json for repositories where the
+          depency graph is enabled. Find out how to enable the graph for your
+          repository{" "}
+          <a target="_blank" href={GITHUB_README_URL}>
+            here.
+          </a>
+        </p>
+        {this.state.authenticated ? (
+          <Page apolloClient={this.client} />
+        ) : (
+          <Authentication />
+        )}
+      </Container>
     );
   }
 }
