@@ -22,7 +22,8 @@
     "styled-normalize": "^8.0.4"
   },
   "devDependencies": {
-    "babel-core": "^6.26.3"
+    "babel-core": "^6.26.3",
+    "babel-preset-react": "^6.24.1"
   },
   "scripts": {
     "dev": "parcel index.html",
