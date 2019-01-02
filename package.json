@@ -11,7 +11,7 @@
     "dotenv": "^6.2.0",
     "express": "^4.16.4",
     "graphql": "^14.0.2",
-    "parcel": "^1.11.0",
+    "parcel-bundler": "^1.11.0",
     "ramda": "^0.26.1",
     "react": "^16.7.0",
     "react-apollo": "^2.3.3",
@@ -26,6 +26,8 @@
   },
   "scripts": {
     "dev": "parcel index.html",
-    "start": "babel-node server.js"
+    "start": "babel-node server.js",
+    "build": "parcel build index.html",
+    "postinstall": "yarn build"
   }
 }
