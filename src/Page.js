@@ -118,6 +118,7 @@ class Page extends React.Component {
                   ])
                 )
               );
+              
               const reposWithDependencies = filterReposWithoutDependencies(
                 data
               );

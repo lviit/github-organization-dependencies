@@ -22,9 +22,11 @@ import {
   contains,
 } from "ramda";
 
+import { filterDepGraphManifests } from './fp';
+
 const packages = pipe(
   chain(path(["node", "dependencyGraphManifests", "edges"])),
-  filter(pathSatisfies(contains("package.json"), ["node", "blobPath"])),
+  filterDepGraphManifests,
   chain(path(["node", "dependencies", "nodes"])),
   groupBy(prop("packageName")),
   toPairs,

@@ -7,18 +7,17 @@ import {
   path,
   chain,
   filter,
-  pathSatisfies,
   propSatisfies,
   contains,
   map,
   prop,
-  gt,
-  length,
-  __,
   uniq,
   propEq,
-  find
+  find,
+  tap,
 } from "ramda";
+
+import { filterDepGraphManifests, notEmpty } from "./fp";
 
 const Container = styled.div`
   display: flex;
@@ -105,11 +104,10 @@ const filterByKeywords = (keywords, data) =>
     filter(
       pipe(
         path(["dependencyGraphManifests", "edges"]),
-        filter(pathSatisfies(contains("package.json"), ["node", "blobPath"])),
+        filterDepGraphManifests,
         chain(path(["node", "dependencies", "nodes"])),
         filter(propSatisfies(contains(keywords), "packageName")),
-        length,
-        gt(__, 0)
+        notEmpty,
       )
     )
   )(data);
@@ -117,7 +115,7 @@ const filterByKeywords = (keywords, data) =>
 const packageMatches = (keywords, filteredData) =>
   pipe(
     chain(path(["dependencyGraphManifests", "edges"])),
-    filter(pathSatisfies(contains("package.json"), ["node", "blobPath"])),
+    filterDepGraphManifests,
     chain(path(["node", "dependencies", "nodes"])),
     filter(propSatisfies(contains(keywords), "packageName")),
     map(prop("packageName")),
@@ -148,7 +146,18 @@ class RepositoryQuery extends React.Component {
 
     const filteredData = keywords
       ? filterByKeywords(keywords, data)
-      : map(prop("node"), data);
+      : pipe(
+          map(prop("node")),
+          filter(
+            pipe(
+              path(["dependencyGraphManifests", "edges"]),
+              filterDepGraphManifests,
+              notEmpty,
+            )
+          )
+        )(data);
+
+    console.log(filteredData);
 
     const packagesFound = keywords
       ? packageMatches(keywords, filteredData)
