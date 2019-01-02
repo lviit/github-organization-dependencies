@@ -2,15 +2,13 @@ import express from "express";
 import path from "path";
 import request from "request";
 import bodyParser from "body-parser";
+import dotenv from 'dotenv';
 
-import {
-  GITHUB_CLIENT_ID,
-  GITHUB_CLIENT_SECRET,
-  GITHUB_AUTH_URL
-} from "./src/constants.js";
+dotenv.config();
 
+const GITHUB_AUTH_URL = "https://github.com/login/oauth";
+const { PORT = 3000, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET } = process.env;
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());

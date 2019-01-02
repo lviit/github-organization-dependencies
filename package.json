@@ -8,6 +8,7 @@
     "babel-preset-env": "^1.7.0",
     "body-parser": "^1.18.3",
     "chart.js": "^2.7.3",
+    "dotenv": "^6.2.0",
     "express": "^4.16.4",
     "graphql": "^14.0.2",
     "parcel": "^1.11.0",
