@@ -35,8 +35,8 @@ const Dependencies = pipe(
   prop("data"),
   filter(pathSatisfies(contains("package.json"), ["node", "blobPath"])),
   chain(path(["node", "dependencies", "nodes"])),
-  map(dep => (
-    <li>
+  map((dep, i) => (
+    <li key={i}>
       {dep.packageName} {dep.requirements}
     </li>
   ))

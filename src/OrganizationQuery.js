@@ -68,9 +68,9 @@ const Hello = styled.p`
 
 const Organizations = pipe(
   path(["data", "viewer", "organizations", "edges"]),
-  map(({ node: { login, name } }) => <option value={login}>{name}</option>),
+  map(({ node: { login, name } }) => <option value={login} key={login}>{name}</option>),
   prepend(
-    <option value="none" disabled>
+    <option value="none" disabled key="none">
       {"<none>"}
     </option>
   )
