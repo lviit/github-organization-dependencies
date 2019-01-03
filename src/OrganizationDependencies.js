@@ -57,7 +57,7 @@ const OrganizationDependencies = ({ organization, data }) => {
 
   return (
     <div>
-      <h2>Popular packages in organization</h2>
+      <h2>Popular packages</h2>
       <HorizontalBar
         data={{
           labels: titles(packageData),

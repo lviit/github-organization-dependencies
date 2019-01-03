@@ -3,6 +3,7 @@ import { ApolloProvider } from "react-apollo";
 import { Query } from "react-apollo";
 import gql from "graphql-tag";
 import { pipe, path, reject, pathSatisfies, isEmpty } from "ramda";
+import styled from "styled-components";
 
 import OrganizationQuery from "./OrganizationQuery";
 import RepositoryQuery from "./RepositoryQuery";
@@ -12,7 +13,7 @@ import Spinner from "./Spinner";
 const query = organization => gql`
   query getDependencies($endCursor: String!) {
     organization(login: ${organization}) {
-      repositories(first: 50, after: $endCursor) {
+      repositories(first: 20, after: $endCursor) {
         pageInfo {
           hasNextPage
           endCursor
@@ -38,6 +39,17 @@ const query = organization => gql`
         }
       }
     }
+  }
+`;
+
+const Loader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  span {
+    font-weight: 600;
+    margin: 0 5px;
   }
 `;
 
@@ -70,14 +82,14 @@ class Page extends React.Component {
         {activeOrganization && (
           <Query
             query={query(activeOrganization)}
-            //notifyOnNetworkStatusChange
+            notifyOnNetworkStatusChange
             variables={{
               endCursor: ""
             }}
           >
             {({ loading, error, data, fetchMore }) => {
-              if (loading) return <Spinner />;
               if (error) return <p>Error :(</p>;
+              if (!data.organization) return <Spinner />;
 
               const {
                 endCursor,
@@ -118,14 +130,20 @@ class Page extends React.Component {
                   ])
                 )
               );
-              
+
               const reposWithDependencies = filterReposWithoutDependencies(
                 data
               );
 
-              //console.log(data);
               return (
                 <React.Fragment>
+                  <Loader>
+                    {"Loaded "}{" "}
+                    <span>{data.organization.repositories.edges.length}</span>
+                    {" repositories"}
+                    {loading && <Spinner small={true} />}
+                    {!hasNextPage && "...done!"}
+                  </Loader>
                   <OrganizationDependencies
                     organization={activeOrganization}
                     data={reposWithDependencies}

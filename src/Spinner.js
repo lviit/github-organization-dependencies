@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 
 const StyledSpinner = styled.div`
-  margin: 60px auto;
+  margin: ${props => (props.small ? "0 10px" : "60px auto")}; 
   font-size: 10px;
   position: relative;
   text-indent: -9999em;
@@ -16,14 +16,8 @@ const StyledSpinner = styled.div`
   -webkit-animation: load8 1.1s infinite linear;
   animation: load8 1.1s infinite linear;
   border-radius: 50%;
-  width: 20em;
-  height: 20em;
-
-  &:after {
-    border-radius: 50%;
-    width: 10em;
-    height: 10em;
-  }
+  width: ${props => (props.small ? "3rem" : "15rem")};
+  height: ${props => (props.small ? "3rem" : "15rem")};
 
   @-webkit-keyframes load8 {
     0% {
@@ -47,6 +41,6 @@ const StyledSpinner = styled.div`
   }
 `;
 
-const Spinner = () => <StyledSpinner />;
+const Spinner = ({ small }) => <StyledSpinner small={small} />;
 
 export default Spinner;
