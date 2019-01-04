@@ -61,7 +61,8 @@ class Page extends React.Component {
     super();
 
     this.state = {
-      activeOrganization: ""
+      activeOrganization: "",
+      prevCursor: ""
     };
   }
 
@@ -74,7 +75,7 @@ class Page extends React.Component {
   render() {
     const {
       props: { apolloClient },
-      state: { activeOrganization }
+      state: { activeOrganization, prevCursor }
     } = this;
     return (
       <ApolloProvider client={apolloClient}>
@@ -99,7 +100,11 @@ class Page extends React.Component {
                 hasNextPage
               } = data.organization.repositories.pageInfo;
 
-              hasNextPage &&
+              if (!loading && hasNextPage && endCursor !== prevCursor) {
+                // @TODO: figure out a better way to avoid duplicates that this prevCursor nonsense
+                this.setState({
+                  prevCursor: endCursor
+                });
                 fetchMore({
                   variables: {
                     endCursor
@@ -122,6 +127,7 @@ class Page extends React.Component {
                       : prev;
                   }
                 });
+              }
 
               const filterReposWithoutDependencies = pipe(
                 path(["organization", "repositories", "edges"]),
@@ -131,7 +137,7 @@ class Page extends React.Component {
                     "dependencyGraphManifests",
                     "edges"
                   ])
-                ),
+                )
                 //uniqBy(path(['node, name']))
               );
 
