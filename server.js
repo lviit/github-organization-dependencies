@@ -18,6 +18,7 @@ app.get("/authenticate/github", (req, res) => {
     "read:org",
     "public_repo",
     "read:user",
+    "repo:status",
   ];
   res.redirect(
     `${GITHUB_AUTH_URL}/authorize?scope=${scopes.join(

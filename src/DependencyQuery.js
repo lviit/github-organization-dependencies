@@ -42,7 +42,7 @@ const Dependencies = pipe(
   chain(path(["node", "dependencies", "nodes"])),
   map((dep, i) => (
     <li key={i}>
-      <a target="_blank" href={dep.repository.url}>
+      <a target="_blank" href={dep.repository && dep.repository.url}>
         {dep.packageName} {dep.requirements}
       </a>
     </li>

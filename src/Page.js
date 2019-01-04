@@ -14,6 +14,7 @@ const query = organization => gql`
   query getDependencies($endCursor: String!) {
     organization(login: ${organization}) {
       repositories(first: 20, after: $endCursor) {
+        totalCount
         pageInfo {
           hasNextPage
           endCursor
@@ -101,7 +102,7 @@ class Page extends React.Component {
               } = data.organization.repositories.pageInfo;
 
               if (!loading && hasNextPage && endCursor !== prevCursor) {
-                // @TODO: figure out a better way to avoid duplicates that this prevCursor nonsense
+                // @TODO: figure out a better way to make this fire only once per cursor that this prevCursor nonsense
                 this.setState({
                   prevCursor: endCursor
                 });
@@ -150,7 +151,8 @@ class Page extends React.Component {
                   <Loader>
                     {"Loaded "}{" "}
                     <span>{data.organization.repositories.edges.length}</span>
-                    {" repositories"}
+                    {" repositories of total"}
+                    <span>{data.organization.repositories.totalCount}</span>
                     {loading && <Spinner small={true} />}
                     {!hasNextPage && "...done!"}
                   </Loader>

@@ -57,6 +57,7 @@ const GlobalStyle = createGlobalStyle`
 const Container = styled.div`
   margin: 0 auto;
   max-width: 1100px;
+  margin-bottom: 100px;
 `;
 
 const createApolloClient = token =>
