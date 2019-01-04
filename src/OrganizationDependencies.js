@@ -18,15 +18,13 @@ import {
   keys,
   head,
   filter,
-  pathSatisfies,
-  contains,
 } from "ramda";
 
-import { filterDepGraphManifests } from './fp';
+import { manifestIsPackageJson } from './fp';
 
 const packages = pipe(
   chain(path(["node", "dependencyGraphManifests", "edges"])),
-  filterDepGraphManifests,
+  filter(manifestIsPackageJson),
   chain(path(["node", "dependencies", "nodes"])),
   groupBy(prop("packageName")),
   toPairs,

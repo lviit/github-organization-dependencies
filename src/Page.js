@@ -2,7 +2,7 @@ import React from "react";
 import { ApolloProvider } from "react-apollo";
 import { Query } from "react-apollo";
 import gql from "graphql-tag";
-import { pipe, path, reject, pathSatisfies, isEmpty } from "ramda";
+import { pipe, path, reject, pathSatisfies, isEmpty, uniqBy } from "ramda";
 import styled from "styled-components";
 
 import OrganizationQuery from "./OrganizationQuery";
@@ -128,7 +128,8 @@ class Page extends React.Component {
                     "dependencyGraphManifests",
                     "edges"
                   ])
-                )
+                ),
+                //uniqBy(path(['node, name']))
               );
 
               const reposWithDependencies = filterReposWithoutDependencies(

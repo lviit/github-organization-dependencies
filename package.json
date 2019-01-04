@@ -24,7 +24,7 @@
     "babel-preset-react": "^6.24.1"
   },
   "scripts": {
-    "dev": "parcel index.html",
+    "dev": "parcel watch index.html & yarn start",
     "start": "babel-node server.js",
     "build": "parcel build index.html",
     "postinstall": "yarn build"

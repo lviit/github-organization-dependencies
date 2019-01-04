@@ -14,10 +14,9 @@ import {
   uniq,
   propEq,
   find,
-  tap,
 } from "ramda";
 
-import { filterDepGraphManifests, notEmpty } from "./fp";
+import { manifestIsPackageJson, notEmpty } from "./fp";
 
 const Container = styled.div`
   display: flex;
@@ -104,18 +103,29 @@ const filterByKeywords = (keywords, data) =>
     filter(
       pipe(
         path(["dependencyGraphManifests", "edges"]),
-        filterDepGraphManifests,
+        filter(manifestIsPackageJson),
         chain(path(["node", "dependencies", "nodes"])),
         filter(propSatisfies(contains(keywords), "packageName")),
-        notEmpty,
+        notEmpty
       )
     )
   )(data);
 
+const filterEmpty = pipe(
+  map(prop("node")),
+  filter(
+    pipe(
+      path(["dependencyGraphManifests", "edges"]),
+      filter(manifestIsPackageJson),
+      notEmpty
+    )
+  )
+);
+
 const packageMatches = (keywords, filteredData) =>
   pipe(
     chain(path(["dependencyGraphManifests", "edges"])),
-    filterDepGraphManifests,
+    filter(manifestIsPackageJson),
     chain(path(["node", "dependencies", "nodes"])),
     filter(propSatisfies(contains(keywords), "packageName")),
     map(prop("packageName")),
@@ -146,24 +156,17 @@ class RepositoryQuery extends React.Component {
 
     const filteredData = keywords
       ? filterByKeywords(keywords, data)
-      : pipe(
-          map(prop("node")),
-          filter(
-            pipe(
-              path(["dependencyGraphManifests", "edges"]),
-              filterDepGraphManifests,
-              notEmpty,
-            )
-          )
-        )(data);
-
-    console.log(filteredData);
+      : filterEmpty(data);
 
     const packagesFound = keywords
       ? packageMatches(keywords, filteredData)
       : null;
 
-    const activeRepositoryData = find(propEq("name", activeRepository));
+    const filterByName = (name, data) =>
+      pipe(
+        filterEmpty,
+        find(propEq("name", name))
+      )(data);
 
     return (
       <Container>
@@ -194,8 +197,8 @@ class RepositoryQuery extends React.Component {
         <Left>
           <ul>
             {/* <Repositories data={data} /> */}
-            {filteredData.map(({ name, id }) => (
-              <li key={id}>
+            {filteredData.map(({ name, id }, i) => (
+              <li key={i}>
                 <Button
                   active={activeRepository === name}
                   onClick={() => this.handleRepoChange(name)}
@@ -207,7 +210,7 @@ class RepositoryQuery extends React.Component {
           </ul>
         </Left>
         {activeRepository && (
-          <DependencyQuery {...activeRepositoryData(filteredData)} />
+          <DependencyQuery {...filterByName(activeRepository, data)} />
         )}
       </Container>
     );
