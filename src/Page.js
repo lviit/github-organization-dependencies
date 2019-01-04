@@ -30,6 +30,9 @@ const query = organization => gql`
                     nodes {
                       packageName
                       requirements
+                      repository {
+                        url
+                      }
                     }
                   }
                 }

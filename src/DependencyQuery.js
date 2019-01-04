@@ -20,6 +20,11 @@ const Container = styled.div`
     margin-top: 0;
     font-size: 2rem;
   }
+
+  li {
+    font-size: 1.1rem;
+    margin: 5px 0;
+  }
 `;
 
 const TitleWithArrow = styled.h3`
@@ -37,7 +42,9 @@ const Dependencies = pipe(
   chain(path(["node", "dependencies", "nodes"])),
   map((dep, i) => (
     <li key={i}>
-      {dep.packageName} {dep.requirements}
+      <a target="_blank" href={dep.repository.url}>
+        {dep.packageName} {dep.requirements}
+      </a>
     </li>
   ))
 );

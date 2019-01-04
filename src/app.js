@@ -48,6 +48,10 @@ const GlobalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
   }
+
+  a {
+    color: black;
+  }
 `;
 
 const Container = styled.div`
