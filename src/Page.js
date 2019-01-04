@@ -63,20 +63,51 @@ class Page extends React.Component {
 
     this.state = {
       activeOrganization: "",
-      prevCursor: ""
+      fetchMoreTriggered: false,
     };
   }
 
   handleOrgChange(e) {
     this.setState({
-      activeOrganization: e.target.value
+      activeOrganization: e.target.value,
+    });
+  }
+
+  initFetchMore(fetchMore, endCursor) {
+    fetchMore({
+      variables: {
+        endCursor
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        return fetchMoreResult
+          ? {
+              organization: {
+                ...fetchMoreResult.organization,
+                repositories: {
+                  ...fetchMoreResult.organization.repositories,
+                  edges: [
+                    ...prev.organization.repositories.edges,
+                    ...fetchMoreResult.organization.repositories.edges
+                  ]
+                }
+              }
+            }
+          : prev;
+      }
+    }).then(result => {
+      const {
+        endCursor,
+        hasNextPage
+      } = result.data.organization.repositories.pageInfo;
+
+      hasNextPage && this.initFetchMore(fetchMore, endCursor);
     });
   }
 
   render() {
     const {
       props: { apolloClient },
-      state: { activeOrganization, prevCursor }
+      state: { activeOrganization, fetchMoreTriggered }
     } = this;
     return (
       <ApolloProvider client={apolloClient}>
@@ -97,37 +128,14 @@ class Page extends React.Component {
               if (!data.organization) return <Spinner />;
 
               const {
-                endCursor,
-                hasNextPage
-              } = data.organization.repositories.pageInfo;
+                pageInfo: { endCursor, hasNextPage },
+                totalCount,
+                edges,
+              } = data.organization.repositories;
 
-              if (!loading && hasNextPage && endCursor !== prevCursor) {
-                // @TODO: figure out a better way to make this fire only once per cursor that this prevCursor nonsense
-                this.setState({
-                  prevCursor: endCursor
-                });
-                fetchMore({
-                  variables: {
-                    endCursor
-                  },
-                  updateQuery: (prev, { fetchMoreResult }) => {
-                    return fetchMoreResult
-                      ? {
-                          organization: {
-                            ...fetchMoreResult.organization,
-                            repositories: {
-                              ...fetchMoreResult.organization.repositories,
-                              edges: [
-                                ...prev.organization.repositories.edges,
-                                ...fetchMoreResult.organization.repositories
-                                  .edges
-                              ]
-                            }
-                          }
-                        }
-                      : prev;
-                  }
-                });
+              if (!fetchMoreTriggered) {
+                this.setState({ fetchMoreTriggered: true });
+                this.initFetchMore(fetchMore, endCursor);
               }
 
               const filterReposWithoutDependencies = pipe(
@@ -150,9 +158,9 @@ class Page extends React.Component {
                 <React.Fragment>
                   <Loader>
                     {"Loaded "}{" "}
-                    <span>{data.organization.repositories.edges.length}</span>
+                    <span>{edges.length}</span>
                     {" repositories of total"}
-                    <span>{data.organization.repositories.totalCount}</span>
+                    <span>{totalCount}</span>
                     {loading && <Spinner small={true} />}
                     {!hasNextPage && "...done!"}
                   </Loader>

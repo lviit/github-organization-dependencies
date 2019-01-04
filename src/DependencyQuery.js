@@ -49,12 +49,12 @@ const Dependencies = pipe(
   ))
 );
 
-const DependencyQuery = ({ name, dependencyGraphManifests: { edges } }) => (
+const DependencyQuery = ({ name, dependencyGraphManifests }) => (
   <Container>
     {name ? (
       <ul>
         <h3>{name}</h3>
-        <Dependencies data={edges} />
+        <Dependencies data={dependencyGraphManifests.edges} />
       </ul>
     ) : (
       <TitleWithArrow>

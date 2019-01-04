@@ -13,7 +13,7 @@ import {
   prop,
   uniq,
   propEq,
-  find,
+  find
 } from "ramda";
 
 import { manifestIsPackageJson, notEmpty } from "./fp";
@@ -209,9 +209,7 @@ class RepositoryQuery extends React.Component {
             ))}
           </ul>
         </Left>
-        {activeRepository && (
-          <DependencyQuery {...filterByName(activeRepository, data)} />
-        )}
+        <DependencyQuery {...filterByName(activeRepository, data)} />
       </Container>
     );
   }
