@@ -62,15 +62,16 @@ export const filterEmpty = pipe(
   filter(
     pipe(
       pathDepGraphFromRepo,
+      filter(manifestIsPackageJson),
       notEmpty
     )
-  )
+  ),
+  tap(console.log)
 );
 
 // Type: Repository
 export const filterByName = (name, data) =>
   pipe(
-    filterEmpty,
     find(pathEq(["node", "name"], name)),
   )(data);
 

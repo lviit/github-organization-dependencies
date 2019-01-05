@@ -8,7 +8,7 @@ import OrganizationQuery from "./OrganizationQuery";
 import RepositoryQuery from "./RepositoryQuery";
 import OrganizationDependencies from "./OrganizationDependencies";
 import Spinner from "./Spinner";
-import { filterReposWithoutDependencies} from './fp';
+import { filterReposWithoutDependencies } from "./fp";
 
 const query = organization => gql`
   query getDependencies($endCursor: String!) {
@@ -63,13 +63,13 @@ class Page extends React.Component {
 
     this.state = {
       activeOrganization: "",
-      fetchMoreTriggered: false,
+      fetchMoreTriggered: false
     };
   }
 
   handleOrgChange(e) {
     this.setState({
-      activeOrganization: e.target.value,
+      activeOrganization: e.target.value
     });
   }
 
@@ -94,18 +94,19 @@ class Page extends React.Component {
             }
           : prev;
       }
-    }).then(result => {
-      const {
-        endCursor,
-        hasNextPage
-      } = result.data.organization.repositories.pageInfo;
+    })
+      .then(result => {
+        const {
+          endCursor,
+          hasNextPage
+        } = result.data.organization.repositories.pageInfo;
 
-      hasNextPage && this.initFetchMore(fetchMore, endCursor);
-    }).catch(e => {
-      // If error just try to fetch again
-      console.log(e);
-      //this.initFetchMore(fetchMore, endCursor);
-    });
+        hasNextPage && this.initFetchMore(fetchMore, endCursor);
+      })
+      .catch(e => {
+        // If error just try to fetch again
+        !e.message.includes("403") && this.initFetchMore(fetchMore, endCursor);
+      });
   }
 
   render() {
@@ -134,7 +135,7 @@ class Page extends React.Component {
               const {
                 pageInfo: { endCursor, hasNextPage },
                 totalCount,
-                edges,
+                edges
               } = data.organization.repositories;
 
               if (!fetchMoreTriggered) {
@@ -149,8 +150,7 @@ class Page extends React.Component {
               return (
                 <React.Fragment>
                   <Loader>
-                    {"Loaded "}{" "}
-                    <span>{edges.length}</span>
+                    {"Loaded "} <span>{edges.length}</span>
                     {" repositories of total"}
                     <span>{totalCount}</span>
                     {loading && <Spinner small={true} />}
