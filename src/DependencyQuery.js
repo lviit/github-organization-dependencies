@@ -8,7 +8,8 @@ import {
   map,
   contains,
   pathSatisfies,
-  prop
+  prop,
+  tap
 } from "ramda";
 
 const Container = styled.div`
@@ -49,12 +50,12 @@ const Dependencies = pipe(
   ))
 );
 
-const DependencyQuery = ({ name, dependencyGraphManifests }) => (
+const DependencyQuery = ({ data }) => (
   <Container>
-    {name ? (
+    {data ? (
       <ul>
-        <h3>{name}</h3>
-        <Dependencies data={dependencyGraphManifests.edges} />
+        <h3>{data.node.name}</h3>
+        <Dependencies data={data.node.dependencyGraphManifests.edges} />
       </ul>
     ) : (
       <TitleWithArrow>

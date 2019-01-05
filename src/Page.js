@@ -2,13 +2,13 @@ import React from "react";
 import { ApolloProvider } from "react-apollo";
 import { Query } from "react-apollo";
 import gql from "graphql-tag";
-import { pipe, path, reject, pathSatisfies, isEmpty, uniqBy } from "ramda";
 import styled from "styled-components";
 
 import OrganizationQuery from "./OrganizationQuery";
 import RepositoryQuery from "./RepositoryQuery";
 import OrganizationDependencies from "./OrganizationDependencies";
 import Spinner from "./Spinner";
+import { filterReposWithoutDependencies} from './fp';
 
 const query = organization => gql`
   query getDependencies($endCursor: String!) {
@@ -101,9 +101,10 @@ class Page extends React.Component {
       } = result.data.organization.repositories.pageInfo;
 
       hasNextPage && this.initFetchMore(fetchMore, endCursor);
-    }).catch(() => {
+    }).catch(e => {
       // If error just try to fetch again
-      this.initFetchMore(fetchMore, endCursor);
+      console.log(e);
+      //this.initFetchMore(fetchMore, endCursor);
     });
   }
 
@@ -140,18 +141,6 @@ class Page extends React.Component {
                 this.setState({ fetchMoreTriggered: true });
                 this.initFetchMore(fetchMore, endCursor);
               }
-
-              const filterReposWithoutDependencies = pipe(
-                path(["organization", "repositories", "edges"]),
-                reject(
-                  pathSatisfies(isEmpty, [
-                    "node",
-                    "dependencyGraphManifests",
-                    "edges"
-                  ])
-                )
-                //uniqBy(path(['node, name']))
-              );
 
               const reposWithDependencies = filterReposWithoutDependencies(
                 data

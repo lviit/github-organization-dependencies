@@ -2,42 +2,12 @@ import React from "react";
 import { HorizontalBar } from "react-chartjs-2";
 import {
   pipe,
-  path,
-  prop,
-  chain,
-  groupBy,
-  sortBy,
   map,
-  length,
-  toPairs,
-  apply,
-  objOf,
-  nth,
-  reverse,
-  slice,
   keys,
   head,
-  filter,
 } from "ramda";
 
-import { manifestIsPackageJson } from './fp';
-
-const packages = pipe(
-  chain(path(["node", "dependencyGraphManifests", "edges"])),
-  filter(manifestIsPackageJson),
-  chain(path(["node", "dependencies", "nodes"])),
-  groupBy(prop("packageName")),
-  toPairs,
-  sortBy(
-    pipe(
-      nth(1),
-      length
-    )
-  ),
-  reverse,
-  map(apply(objOf)),
-  slice(0, 30)
-);
+import { packages } from './fp';
 
 const titles = pipe(
   map(keys),

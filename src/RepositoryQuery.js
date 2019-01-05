@@ -2,21 +2,13 @@ import React from "react";
 import styled from "styled-components";
 
 import DependencyQuery from "./DependencyQuery";
-import {
-  pipe,
-  path,
-  chain,
-  filter,
-  propSatisfies,
-  contains,
-  map,
-  prop,
-  uniq,
-  propEq,
-  find
-} from "ramda";
 
-import { manifestIsPackageJson, notEmpty } from "./fp";
+import {
+  filterByKeywords,
+  filterEmpty,
+  packageMatches,
+  filterByName
+} from "./fp";
 
 const Container = styled.div`
   display: flex;
@@ -84,54 +76,6 @@ const Button = styled.button`
   }
 `;
 
-/* TODO: handleRepoChange?
-const Repositories = pipe(
-  path(["data", "organization", "repositories", "edges"]),
-  map(repo => (
-    <li key={repo.node.id}>
-      <Button onClick={() => this.handleRepoChange(repo.node.name)}>
-        {repo.node.name}
-      </Button>
-    </li>
-  ))
-);
-*/
-
-const filterByKeywords = (keywords, data) =>
-  pipe(
-    map(prop("node")),
-    filter(
-      pipe(
-        path(["dependencyGraphManifests", "edges"]),
-        filter(manifestIsPackageJson),
-        chain(path(["node", "dependencies", "nodes"])),
-        filter(propSatisfies(contains(keywords), "packageName")),
-        notEmpty
-      )
-    )
-  )(data);
-
-const filterEmpty = pipe(
-  map(prop("node")),
-  filter(
-    pipe(
-      path(["dependencyGraphManifests", "edges"]),
-      filter(manifestIsPackageJson),
-      notEmpty
-    )
-  )
-);
-
-const packageMatches = (keywords, filteredData) =>
-  pipe(
-    chain(path(["dependencyGraphManifests", "edges"])),
-    filter(manifestIsPackageJson),
-    chain(path(["node", "dependencies", "nodes"])),
-    filter(propSatisfies(contains(keywords), "packageName")),
-    map(prop("packageName")),
-    uniq
-  )(filteredData);
-
 class RepositoryQuery extends React.Component {
   constructor() {
     super();
@@ -162,12 +106,6 @@ class RepositoryQuery extends React.Component {
       ? packageMatches(keywords, filteredData)
       : null;
 
-    const filterByName = (name, data) =>
-      pipe(
-        filterEmpty,
-        find(propEq("name", name))
-      )(data);
-
     return (
       <Container>
         <Header>
@@ -197,7 +135,7 @@ class RepositoryQuery extends React.Component {
         <Left>
           <ul>
             {/* <Repositories data={data} /> */}
-            {filteredData.map(({ name, id }, i) => (
+            {filteredData.map(({ node: { name, id } }, i) => (
               <li key={i}>
                 <Button
                   active={activeRepository === name}
@@ -209,7 +147,7 @@ class RepositoryQuery extends React.Component {
             ))}
           </ul>
         </Left>
-        <DependencyQuery {...filterByName(activeRepository, data)} />
+        <DependencyQuery data={filterByName(activeRepository, data)} />
       </Container>
     );
   }
