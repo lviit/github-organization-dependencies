@@ -101,6 +101,9 @@ class Page extends React.Component {
       } = result.data.organization.repositories.pageInfo;
 
       hasNextPage && this.initFetchMore(fetchMore, endCursor);
+    }).catch(() => {
+      // If error just try to fetch again
+      this.initFetchMore(fetchMore, endCursor);
     });
   }
 
